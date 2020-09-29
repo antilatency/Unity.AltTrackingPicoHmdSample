@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 21915de82b751a24a9bd777bc71600d5
+guid: 413deea271b2cb44890ab951226122b0
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -25,11 +25,17 @@ PluginImporter:
         DefaultValueInitialized: true
         OS: Windows
   - first:
+      Facebook: Win64
+    second:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+  - first:
       Standalone: Win64
     second:
       enabled: 1
       settings:
-        CPU: x86_64
+        CPU: AnyCPU
   userData: 
   assetBundleName: 
   assetBundleVariant: 

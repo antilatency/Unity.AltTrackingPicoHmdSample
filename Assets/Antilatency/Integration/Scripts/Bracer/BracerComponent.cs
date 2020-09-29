@@ -199,7 +199,7 @@ namespace Antilatency.Integration {
                 return false;
             }
             
-            value = _bracerCotask.getTouch();
+            value = _bracerCotask.getTouch(0);
             return true;
         }
 

@@ -23,14 +23,22 @@ public partial struct Vibration {
 	public float duration;
 }
 
-[Guid("9be46b31-70e4-465b-a60b-9a5e1ed9e820")]
+[Guid("36f3603d-32d8-4f36-9ebd-a06a3f188466")]
 public interface ICotask : Antilatency.DeviceNetwork.ICotaskBatteryPowered {
+	/// <summary>Get count of touch channels.</summary>
+	uint getTouchChannelsCount();
 	/// <summary>Get actual native touch value.</summary>
 	/// <returns>Native touch value without any preprocessing. Lower value show stronger touch.</returns>
-	uint getTouchNativeValue();
-	/// <summary>Get actual touch value. Window for calculation based on values from device properties: "touch/WindowTop" and "touch/WindowBottom". If it doesn't exist, will be used default window(500 .. 760)</summary>
-	/// <returns>Touch value after processing in range 0 .. 1. Value 0 - no touch, value 1 - max touch. If value is outside of windows, it will be clamped to range 0 .. 1.</returns>
-	float getTouch();
+	/// <param name = "channel">
+	/// Index of channel in range 0 .. (getTouchChannelsCount() - 1).
+	/// </param>
+	uint getTouchNativeValue(uint channel);
+	/// <summary>Get actual touch value. Window for calculation based on values from device properties: "touch/WindowN. Where N - index of channel.</summary>
+	/// <param name = "channel">
+	/// Index of channel in range 0 .. (getTouchChannelsCount() - 1).
+	/// </param>
+	/// <returns>Touch value after processing in range 0 .. 1. Value 0 - no touch, value 1 - max touch. If native value is outside of windows, it will be clamped to range 0 .. 1.</returns>
+	float getTouch(uint channel);
 	/// <summary>Play continuous vibration sequence. Note, that You can use 0 intensity for delay in sequence.</summary>
 	/// <param name = "sequence">
 	/// Array of vibration parameters such intensity and duration. If values in sequence are outside valid range, method will throw invalid argument exception.
@@ -46,17 +54,24 @@ namespace Details {
 		public ICotaskWrapper(System.IntPtr obj) : base(obj) {
 		    _VMT = LoadVMT<ICotaskRemap.VMT>(base.GetTotalNativeMethodsCount());
 		}
-		public uint getTouchNativeValue() {
+		public uint getTouchChannelsCount() {
 			uint result;
 			uint resultMarshaler;
-			HandleExceptionCode(_VMT.getTouchNativeValue(_object, out resultMarshaler));
+			HandleExceptionCode(_VMT.getTouchChannelsCount(_object, out resultMarshaler));
 			result = resultMarshaler;
 			return result;
 		}
-		public float getTouch() {
+		public uint getTouchNativeValue(uint channel) {
+			uint result;
+			uint resultMarshaler;
+			HandleExceptionCode(_VMT.getTouchNativeValue(_object, channel, out resultMarshaler));
+			result = resultMarshaler;
+			return result;
+		}
+		public float getTouch(uint channel) {
 			float result;
 			float resultMarshaler;
-			HandleExceptionCode(_VMT.getTouch(_object, out resultMarshaler));
+			HandleExceptionCode(_VMT.getTouch(_object, channel, out resultMarshaler));
 			result = resultMarshaler;
 			return result;
 		}
@@ -68,10 +83,12 @@ namespace Details {
 	}
 	public class ICotaskRemap : Antilatency.DeviceNetwork.Details.ICotaskBatteryPoweredRemap {
 		public new struct VMT {
-			public delegate Antilatency.InterfaceContract.ExceptionCode getTouchNativeValueDelegate(System.IntPtr _this, out uint result);
-			public delegate Antilatency.InterfaceContract.ExceptionCode getTouchDelegate(System.IntPtr _this, out float result);
+			public delegate Antilatency.InterfaceContract.ExceptionCode getTouchChannelsCountDelegate(System.IntPtr _this, out uint result);
+			public delegate Antilatency.InterfaceContract.ExceptionCode getTouchNativeValueDelegate(System.IntPtr _this, uint channel, out uint result);
+			public delegate Antilatency.InterfaceContract.ExceptionCode getTouchDelegate(System.IntPtr _this, uint channel, out float result);
 			public delegate Antilatency.InterfaceContract.ExceptionCode executeVibrationSequenceDelegate(System.IntPtr _this, Antilatency.InterfaceContract.Details.ArrayInMarshaler.Intermediate sequence);
 			#pragma warning disable 0649
+			public getTouchChannelsCountDelegate getTouchChannelsCount;
 			public getTouchNativeValueDelegate getTouchNativeValue;
 			public getTouchDelegate getTouch;
 			public executeVibrationSequenceDelegate executeVibrationSequence;
@@ -86,10 +103,10 @@ namespace Details {
 		protected static new void AppendVmt(System.Collections.Generic.List<object> buffer) {
 			Antilatency.DeviceNetwork.Details.ICotaskBatteryPoweredRemap.AppendVmt(buffer);
 			var vmt = new VMT();
-			vmt.getTouchNativeValue = (System.IntPtr _this, out uint result) => {
+			vmt.getTouchChannelsCount = (System.IntPtr _this, out uint result) => {
 				try {
 					var obj = GetContext(_this) as ICotask;
-					var resultMarshaler = obj.getTouchNativeValue();
+					var resultMarshaler = obj.getTouchChannelsCount();
 					result = resultMarshaler;
 				}
 				catch (System.Exception ex) {
@@ -98,10 +115,22 @@ namespace Details {
 				}
 				return Antilatency.InterfaceContract.ExceptionCode.Ok;
 			};
-			vmt.getTouch = (System.IntPtr _this, out float result) => {
+			vmt.getTouchNativeValue = (System.IntPtr _this, uint channel, out uint result) => {
 				try {
 					var obj = GetContext(_this) as ICotask;
-					var resultMarshaler = obj.getTouch();
+					var resultMarshaler = obj.getTouchNativeValue(channel);
+					result = resultMarshaler;
+				}
+				catch (System.Exception ex) {
+					result = default(uint);
+					return handleRemapException(ex, _this);
+				}
+				return Antilatency.InterfaceContract.ExceptionCode.Ok;
+			};
+			vmt.getTouch = (System.IntPtr _this, uint channel, out float result) => {
+				try {
+					var obj = GetContext(_this) as ICotask;
+					var resultMarshaler = obj.getTouch(channel);
 					result = resultMarshaler;
 				}
 				catch (System.Exception ex) {
@@ -129,7 +158,7 @@ namespace Details {
 	}
 }
 
-[Guid("184969a7-8ba1-4d4b-a3ea-66a5733ce245")]
+[Guid("28ab49e0-a878-4664-b26e-6543f1e11f92")]
 public interface ICotaskConstructor : Antilatency.DeviceNetwork.ICotaskConstructor {
 	Antilatency.Bracer.ICotask startTask(Antilatency.DeviceNetwork.INetwork network, Antilatency.DeviceNetwork.NodeHandle node);
 }
@@ -189,7 +218,7 @@ namespace Details {
 	}
 }
 
-[Guid("24c5255f-88f6-4371-ac9e-67544fe83e09")]
+[Guid("8c3ad766-5af7-4c13-baa1-e98cbdfa671e")]
 public interface ILibrary : Antilatency.InterfaceContract.IInterface {
 	/// <summary>Get version of AntilatencyBracer library.</summary>
 	string getVersion();
@@ -284,8 +313,8 @@ namespace Details {
 }
 
 public static partial class Constants {
-	public const string TouchWindowTopName = "touch/WindowTop";
-	public const string TouchWindowBottomName = "touch/WindowBottom";
+	public const string TouchChannelsCountPropertyName = "sys/TouchChannelsCount";
+	public const string TouchWindowBaseName = "touch/Window";
 }
 
 
