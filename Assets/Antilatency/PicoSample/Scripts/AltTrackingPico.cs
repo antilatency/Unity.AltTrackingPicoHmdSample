@@ -32,9 +32,8 @@ namespace Antilatency.IntegrationPico {
         private Antilatency.TrackingAlignment.ILibrary _alignmentLibrary;
         private Antilatency.TrackingAlignment.ITrackingAlignment _alignment;
 
-        private bool _addSamplesAllowed = true;
         private IEnumerator _framesSkip = null;
-
+        private const int _framesToSkipAtInit = 10;
         private bool _focus = true;
         private bool _hmd6Dof = false;
 
@@ -68,7 +67,13 @@ namespace Antilatency.IntegrationPico {
 
             _alignmentLibrary = Antilatency.TrackingAlignment.Library.load();
 
-            StartTrackingAlignment();
+            if (_framesSkip != null) {
+                StopCoroutine(_framesSkip);
+                _framesSkip = null;
+            }
+
+            _framesSkip = FramesSkip(_framesToSkipAtInit);
+            StartCoroutine(_framesSkip);
         }
 
         protected virtual void Start() {
@@ -85,20 +90,24 @@ namespace Antilatency.IntegrationPico {
             _b = PvrHeadTrack.transform;
         }
 
-        private void OnFocusChanged(bool focus) {
-            _addSamplesAllowed = false;
+        private void OnApplicationPause(bool pause) {
+            OnFocusChanged(!pause);
+        }
 
+        private void OnApplicationFocus(bool focus) {
+            OnFocusChanged(focus);
+        }
+
+        private void OnFocusChanged(bool focus) {
             if (focus) {
                 if (_framesSkip != null) {
                     StopCoroutine(_framesSkip);
                     _framesSkip = null;
                 }
 
-                //Do not add samples for 5 frames due to headsets's incorrect rotation values recieved after focus has been restored
-                _framesSkip = FramesSkip(10);
+                //Do not add samples for 10 frames due to headsets's incorrect rotation values received after focus has been restored
+                _framesSkip = FramesSkip(_framesToSkipAtInit);
                 StartCoroutine(_framesSkip);
-
-                StartTrackingAlignment();
             } else {
                 StopTrackingAlignment();
             }
@@ -110,7 +119,7 @@ namespace Antilatency.IntegrationPico {
                 yield return new WaitForEndOfFrame();
                 counter++;
             }
-            _addSamplesAllowed = true;
+            StartTrackingAlignment();
         }
 
         private void StartTrackingAlignment() {
@@ -138,14 +147,9 @@ namespace Antilatency.IntegrationPico {
         protected override void Update() {
             base.Update();
 
-            if (Application.isFocused != _focus) {
-                _focus = Application.isFocused;
-                OnFocusChanged(_focus);
-            }
-
             ApplyTrackingData();
         }
-        
+
         protected override NodeHandle GetAvailableTrackingNode() {
             return GetUsbConnectedFirstIdleTrackerNode();
         }
@@ -162,7 +166,7 @@ namespace Antilatency.IntegrationPico {
                 PvrSdkManager.PVRNeck = false;
             }
 
-            if (altTrackingActive && trackingState.stability.stage == Antilatency.Alt.Tracking.Stage.Tracking6Dof && _addSamplesAllowed) {
+            if (altTrackingActive && trackingState.stability.stage == Antilatency.Alt.Tracking.Stage.Tracking6Dof && (_alignment != null)) {
                 var result = _alignment.update(
                     Antilatency.Math.doubleQ.FromQuaternion(trackingState.pose.rotation),
                     Antilatency.Math.doubleQ.FromQuaternion(_b.localRotation),
@@ -171,7 +175,7 @@ namespace Antilatency.IntegrationPico {
                 ExtrapolationTime = (float)result.timeBAheadOfA;
                 _placement.rotation = result.rotationARelativeToB.ToQuaternion();
 
-                transform.localRotation = result.rotationBSpace.ToQuaternion();
+                _bSpace.localRotation = result.rotationBSpace.ToQuaternion();
             }
 
             altTrackingActive = GetTrackingState(out trackingState);
