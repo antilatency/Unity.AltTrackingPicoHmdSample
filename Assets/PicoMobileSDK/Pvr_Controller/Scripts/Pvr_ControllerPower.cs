@@ -100,7 +100,7 @@ public class Pvr_ControllerPower : MonoBehaviour
                     else
                     {
                         powerImage.enabled = Vector3.Distance(transform.parent.parent.parent.localPosition,
-                                                 Pvr_UnitySDKManager.SDK.HeadPose.Position) <= 0.35f;
+                                                 Pvr_UnitySDKSensor.Instance.HeadPose.Position) <= 0.35f;
                     }
                     if (powerValue != Controller.UPvr_GetControllerPower(hand))
                     {
@@ -166,7 +166,7 @@ public class Pvr_ControllerPower : MonoBehaviour
                         else
                         {
                             powerImage.enabled = Vector3.Distance(transform.parent.parent.parent.localPosition,
-                                                     Pvr_UnitySDKManager.SDK.HeadPose.Position) <= 0.35f;
+                                                     Pvr_UnitySDKSensor.Instance.HeadPose.Position) <= 0.35f;
                         }
                         if (powerValue != Controller.UPvr_GetControllerPower(0))
                         {

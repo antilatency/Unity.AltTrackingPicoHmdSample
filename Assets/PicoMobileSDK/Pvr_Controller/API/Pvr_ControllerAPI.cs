@@ -51,6 +51,7 @@ namespace Pvr_UnitySDKAPI
         public ControllerState ConnectState;
         public SwipeDirection SwipeDirection;
         public TouchPadClick TouchPadClick;
+        public bool isShowBoundary;
 
         public ControllerHand()
         {
@@ -74,6 +75,7 @@ namespace Pvr_UnitySDKAPI
             ConnectState = ControllerState.Error;
             SwipeDirection = SwipeDirection.No;
             TouchPadClick = TouchPadClick.No;
+            isShowBoundary = false;
         }
     }
 
@@ -196,14 +198,9 @@ namespace Pvr_UnitySDKAPI
             switch (hand)
             {
                 case 0:
-                    Pvr_ControllerManager.controllerlink.Controller0.ConnectState = Pvr_ControllerManager.GetControllerConnectionState(0) == 1 ? ControllerState.Connected : ControllerState.DisConnected;
-                    return Pvr_ControllerManager.controllerlink.Controller0.ConnectState;
+                    return (ControllerState)Convert.ToInt16(Pvr_ControllerManager.controllerlink.controller0Connected);
                 case 1:
-                    if (Pvr_ControllerManager.controllerlink.neoserviceStarted)
-                    {
-                        Pvr_ControllerManager.controllerlink.Controller1.ConnectState = Pvr_ControllerManager.GetControllerConnectionState(1) == 1 ? ControllerState.Connected : ControllerState.DisConnected;
-                    }
-                    return Pvr_ControllerManager.controllerlink.Controller1.ConnectState;
+                    return (ControllerState)Convert.ToInt16(Pvr_ControllerManager.controllerlink.controller1Connected);
 
             }
             return ControllerState.Error;
@@ -657,7 +654,7 @@ namespace Pvr_UnitySDKAPI
         /// </summary>
         public static Pvr_Controller.UserHandNess UPvr_GetHandNess()
         {
-            return (Pvr_Controller.UserHandNess)Pvr_ControllerManager.controllerlink.getHandness();
+            return Pvr_ControllerManager.controllerlink.handness;
         }
 
         /// <summary>
@@ -689,7 +686,7 @@ namespace Pvr_UnitySDKAPI
         /// <returns>0: no connection 1：goblin1 2:Neo 3:goblin2 4:Neo2</returns>
         public static int UPvr_GetDeviceType()
         {
-            return Pvr_ControllerManager.controllerlink.GetDeviceType();
+            return Pvr_ControllerManager.controllerlink.controllerType;
         }
 
         /// <summary>
@@ -698,7 +695,7 @@ namespace Pvr_UnitySDKAPI
         /// <returns></returns>
         public static int UPvr_GetMainHandNess()
         {
-            return Pvr_ControllerManager.controllerlink.GetMainControllerIndex();
+            return Pvr_ControllerManager.controllerlink.mainHandID;
         }
 
         /// <summary>
@@ -733,11 +730,11 @@ namespace Pvr_UnitySDKAPI
         /// <summary>
         /// get controller binding state
         /// </summary>
-        /// <param name="id">0,1</param>
+        /// <param name="hand">0,1</param>
         /// <returns>-1:error 0:Unbound 1:bind</returns>
-        public static int UPvr_GetControllerBindingState(int id)
+        public static int UPvr_GetControllerBindingState(int hand)
         {
-            return Pvr_ControllerManager.controllerlink.GetControllerBindingState(id);
+            return Pvr_ControllerManager.controllerlink.GetControllerBindingState(hand);
         }
 
         /// <summary>
@@ -753,26 +750,18 @@ namespace Pvr_UnitySDKAPI
         /// Get the controller AngularVelocity, Obtain the controller's gyroscope data.
         /// unit:rad/s
         /// </summary>
-        public static Vector3 UPvr_GetAngularVelocity(int num)
+        public static Vector3 UPvr_GetAngularVelocity(int hand)
         {
-            Vector3 Aglr = new Vector3(0.0f, 0.0f, 0.0f);
-#if ANDROID_DEVICE
-            Aglr = Pvr_ControllerManager.Instance.GetAngularVelocity(num);
-#endif
-            return Aglr;
+            return Pvr_ControllerManager.controllerlink.GetAngularVelocity(hand);
         }
 
         /// <summary>
         /// Get the controller Acceleration.
         /// mm/s^2
         /// </summary>
-        public static Vector3 UPvr_GetAcceleration(int num)
+        public static Vector3 UPvr_GetAcceleration(int hand)
         {
-            Vector3 Acc = new Vector3(0.0f, 0.0f, 0.0f);
-#if ANDROID_DEVICE
-            Acc = Pvr_ControllerManager.Instance.GetAcceleration(num);
-#endif
-            return Acc;
+            return Pvr_ControllerManager.controllerlink.GetAcceleration(hand);
         }
 
         /// <summary>
@@ -781,6 +770,14 @@ namespace Pvr_UnitySDKAPI
         public static void UPvr_ScanController()
         {
             Pvr_ControllerManager.controllerlink.StartScan();
+        }
+
+        /// <summary>
+        /// Stop scan Goblin,G2 controller
+        /// </summary>
+        public static void UPvr_StopScanController()
+        {
+            Pvr_ControllerManager.controllerlink.StopScan();
         }
 
         /// <summary>
@@ -795,6 +792,23 @@ namespace Pvr_UnitySDKAPI
                 Pvr_ControllerManager.controllerlink.hummingBirdMac = mac;
             }
             Pvr_ControllerManager.controllerlink.ConnectBLE();
+        }
+
+        /// <summary>
+        /// Disonnect controller.
+        /// only fit goblin,g2
+        /// </summary>
+        public static void UPvr_DisConnectController()
+        {
+            Pvr_ControllerManager.controllerlink.DisConnectBLE();
+        }
+
+        /// <summary>
+        /// Reset Controller`s rotation
+        /// </summary>
+        public static void UPvr_ResetController(int hand)
+        {
+            Pvr_ControllerManager.controllerlink.ResetController(hand);
         }
 
         /// <summary>

@@ -31,7 +31,7 @@ public class Pvr_UnitySDKFPS : MonoBehaviour
         {
             interp = 0;
         }
-        float currentFPS = 1.0f / Time.deltaTime;
+        float currentFPS = 1.0f / Time.unscaledDeltaTime;
         if (float.IsNaN(currentFPS) || float.IsInfinity(currentFPS))
         {
             currentFPS = 0;

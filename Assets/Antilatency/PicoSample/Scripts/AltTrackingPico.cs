@@ -34,7 +34,6 @@ namespace Antilatency.IntegrationPico {
 
         private IEnumerator _framesSkip = null;
         private const int _framesToSkipAtInit = 10;
-        private bool _focus = true;
         private bool _hmd6Dof = false;
 
         private bool _altInitialPositionApplied = false;
@@ -67,13 +66,7 @@ namespace Antilatency.IntegrationPico {
 
             _alignmentLibrary = Antilatency.TrackingAlignment.Library.load();
 
-            if (_framesSkip != null) {
-                StopCoroutine(_framesSkip);
-                _framesSkip = null;
-            }
-
-            _framesSkip = FramesSkip(_framesToSkipAtInit);
-            StartCoroutine(_framesSkip);
+            InitializeTrackingAlignment();
         }
 
         protected virtual void Start() {
@@ -91,26 +84,32 @@ namespace Antilatency.IntegrationPico {
         }
 
         private void OnApplicationPause(bool pause) {
-            OnFocusChanged(!pause);
+            FocusAlignment(!pause);
         }
 
         private void OnApplicationFocus(bool focus) {
-            OnFocusChanged(focus);
+            FocusAlignment(focus);
         }
 
-        private void OnFocusChanged(bool focus) {
+        private void FocusAlignment(bool focus) {
             if (focus) {
-                if (_framesSkip != null) {
-                    StopCoroutine(_framesSkip);
-                    _framesSkip = null;
-                }
-
-                //Do not add samples for 10 frames due to headsets's incorrect rotation values received after focus has been restored
-                _framesSkip = FramesSkip(_framesToSkipAtInit);
-                StartCoroutine(_framesSkip);
+                InitializeTrackingAlignment();
             } else {
                 StopTrackingAlignment();
             }
+        }
+
+        private void InitializeTrackingAlignment()
+        {
+            if (_framesSkip != null)
+            {
+                StopCoroutine(_framesSkip);
+                _framesSkip = null;
+            }
+
+            //Do not add samples for 10 frames due to headsets's incorrect rotation values received after focus has been restored
+            _framesSkip = FramesSkip(_framesToSkipAtInit);
+            StartCoroutine(_framesSkip);
         }
 
         private IEnumerator FramesSkip(uint frameCount) {
@@ -177,8 +176,6 @@ namespace Antilatency.IntegrationPico {
 
                 _bSpace.localRotation = result.rotationBSpace.ToQuaternion();
             }
-
-            altTrackingActive = GetTrackingState(out trackingState);
 
             if (GetTrackingState(out trackingState)) {
                 if (_hmd6Dof) {

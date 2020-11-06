@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Antilatency/PicoSample/Scenes/AltPicoSample.unity
+    guid: 92233000393126b498102717e89c6683
   m_configObjects: {}
