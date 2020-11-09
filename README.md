@@ -9,5 +9,5 @@ This project is based on Antilatency SDK v. 2.1.0
 
 ## Requirements
 
-* Unity 2019.4.3f1
+* Unity 2019.4.14f1
 * Pico G2, Pico G2 4K, Pico Neo 2
