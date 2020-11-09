@@ -21,13 +21,15 @@ using Antilatency.DeviceNetwork;
 /// <summary>
 /// %Antilatency %Alt tracking components and scripts specific for %Pico HMD devices.
 /// </summary>
-namespace Antilatency.IntegrationPico {
+namespace Antilatency.PicoSample {
     /// <summary>
     /// %Antilatency %Alt tracking sample implementation for %Pico headsets.
     /// </summary>
     public class AltTrackingPico : AltTracking {
         public Pvr_UnitySDKManager PvrSdkManager;
         public Pvr_UnitySDKHeadTrack PvrHeadTrack;
+
+        public bool LerpWithPicoPosition = true;
 
         private Antilatency.TrackingAlignment.ILibrary _alignmentLibrary;
         private Antilatency.TrackingAlignment.ITrackingAlignment _alignment;
@@ -71,12 +73,19 @@ namespace Antilatency.IntegrationPico {
 
         protected virtual void Start() {
             var hmd6DofSupport = 0;
-            Pvr_UnitySDKAPI.Render.UPvr_GetIntConfig((int)Pvr_UnitySDKAPI.GlobalIntConfigs.ABILITY6DOF, ref hmd6DofSupport);
-            if (hmd6DofSupport == 1) {
-                _hmd6Dof = !PvrSdkManager.HmdOnlyrot && PvrHeadTrack.trackPosition;
+            if (LerpWithPicoPosition) {
+                Pvr_UnitySDKAPI.Render.UPvr_GetIntConfig((int)Pvr_UnitySDKAPI.GlobalIntConfigs.ABILITY6DOF, ref hmd6DofSupport);
+                if (hmd6DofSupport == 1) {
+                    _hmd6Dof = !PvrSdkManager.HmdOnlyrot && PvrHeadTrack.trackPosition;
+                } else {
+                    _hmd6Dof = false;
+                }
             } else {
                 _hmd6Dof = false;
+                PvrSdkManager.HmdOnlyrot = true;
+                PvrHeadTrack.trackPosition = false;
             }
+            
 
             _aSpace = PvrSdkManager.transform.parent;
             _bSpace = PvrSdkManager.transform;
@@ -99,10 +108,8 @@ namespace Antilatency.IntegrationPico {
             }
         }
 
-        private void InitializeTrackingAlignment()
-        {
-            if (_framesSkip != null)
-            {
+        private void InitializeTrackingAlignment() {
+            if (_framesSkip != null) {
                 StopCoroutine(_framesSkip);
                 _framesSkip = null;
             }
@@ -128,6 +135,8 @@ namespace Antilatency.IntegrationPico {
 
             var placement = GetPlacement();
             _alignment = _alignmentLibrary.createTrackingAlignment(Antilatency.Math.doubleQ.FromQuaternion(placement.rotation), ExtrapolationTime);
+
+            _altInitialPositionApplied = false;
         }
 
         private void StopTrackingAlignment() {
@@ -179,16 +188,16 @@ namespace Antilatency.IntegrationPico {
 
             if (GetTrackingState(out trackingState)) {
                 if (_hmd6Dof) {
+                    Debug.Log("6DoF");
                     if (trackingState.stability.stage == Antilatency.Alt.Tracking.Stage.Tracking6Dof) {
-                        var aWorldSpace = _aSpace.TransformPoint(trackingState.pose.position);
-                        var a = _aSpace.InverseTransformPoint(aWorldSpace);
-                        var bSpace =_bSpace.localPosition;
+                        var a = trackingState.pose.position;
+                        var bSpace = _bSpace.localPosition;
                         var b = _aSpace.InverseTransformPoint(_b.position);
 
                         Vector3 averagePositionInASpace;
 
                         if (!_altInitialPositionApplied) {
-                            averagePositionInASpace = (b * 0.0f + a * 100.0f) / (100.0f + 0.0f);
+                            averagePositionInASpace = a;
                             _altInitialPositionApplied = true;
                         } else {
                             averagePositionInASpace = (b * _bQuality + a * trackingState.stability.value) / (trackingState.stability.value + _bQuality);
@@ -197,7 +206,8 @@ namespace Antilatency.IntegrationPico {
                         _bSpace.localPosition += averagePositionInASpace - b;
                     }
                 } else {
-                    transform.localPosition = trackingState.pose.position;
+                    Debug.Log("3DoF");
+                    _bSpace.localPosition = trackingState.pose.position;
                 }
             }
         }

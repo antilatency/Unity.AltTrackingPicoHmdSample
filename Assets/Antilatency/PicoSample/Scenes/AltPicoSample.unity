@@ -247,8 +247,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyeSide: 2
-  fadeTime: 5
-  fadeColor: {r: 0.01, g: 0.01, b: 0.01, a: 1}
 --- !u!20 &76554921
 Camera:
   m_ObjectHideFlags: 0
@@ -658,12 +656,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 490971985}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.5656539, y: -0.38013792, z: -1.2122135}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_Father: {fileID: 988439115}
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &531709399
 GameObject:
@@ -990,36 +988,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62cbb386d8cfb5246af8cde62e00604f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  reStartHead: 0
-  eyeVFov: 90
-  eyeHFov: 90
   EyesAspect: 1
-  eyeTextures:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  eyeTextureIds: 000000000000000000000000000000000000000000000000
-  currEyeTextureIdx: 0
-  nextEyeTextureIdx: 1
-  overlayTextures:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  overlayTextureIds: 000000000000000000000000000000000000000000000000
-  overlayCamNum: 0
-  resetRot: 0
-  resetPos: 0
   posStatus: 0
-  isPUI: 0
+  ismirroring: 0
   resetBasePos: {x: 0, y: 0, z: 0}
-  resetCol0Pos: {x: 0, y: 0, z: 0}
-  resetCol1Pos: {x: 0, y: 0, z: 0}
   trackingmode: -1
   systemprop: -1
   systemFPS: 0
@@ -1036,8 +1008,6 @@ MonoBehaviour:
   controllerOnlyrot: 0
   trackingOrigin: 1
   ResetTrackerOnLoad: 0
-  rtScaleFactor: 1
-  RenderviewNumber: 0
   leftEyeOffset: {x: 0, y: 0, z: 0}
   rightEyeOffset: {x: 0, y: 0, z: 0}
   leftEyeRect:
@@ -1092,22 +1062,14 @@ MonoBehaviour:
   Middlematerial: {fileID: 0}
   newPicovrTriggered: 0
   showFPS: 1
-  sixDofPosReset: 0
-  showSafePanel: 1
-  defaultRange: 1
-  customRange: 0.8
-  movingRatios: 1
-  screenFade: 0
   neckOffset: {x: 0, y: 0.075, z: 0.0805}
   pVRNeck: 1
   UseCustomNeckPara: 0
   onResume: 1
   isEnterVRMode: 0
-  safeToast: {fileID: 0}
-  resetPanel: {fileID: 0}
   isHasController: 0
   monoscopic: 0
-  copyrightprotection: 0
+  ShowVideoSeethrough: 0
 --- !u!114 &841526064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1266,8 +1228,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyeSide: 0
-  fadeTime: 5
-  fadeColor: {r: 0.01, g: 0.01, b: 0.01, a: 1}
 --- !u!20 &924748682
 Camera:
   m_ObjectHideFlags: 0
@@ -1353,8 +1313,9 @@ Transform:
   - {fileID: 115349330}
   - {fileID: 1272512794}
   - {fileID: 2061729422}
+  - {fileID: 490971989}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1042531537
 GameObject:
@@ -1587,8 +1548,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyeSide: 1
-  fadeTime: 5
-  fadeColor: {r: 0.01, g: 0.01, b: 0.01, a: 1}
 --- !u!20 &1282225994
 Camera:
   m_ObjectHideFlags: 0
@@ -1893,13 +1852,15 @@ MonoBehaviour:
   RightEyeCamera: {fileID: 1282225994}
   MonoEyeCamera: {fileID: 1423673077}
   BothEyeCamera: {fileID: 0}
-  FoveatedRendering: 0
+  foveatedRendering: 0
   foveationLevel: -1
-  FoveationGainValue: {x: 0, y: 0}
-  FoveationAreaValue: 0
-  FoveationMinimumValue: 0
   EyeTracking: 0
   eyePoint: {x: 0, y: 0, z: 0}
+  supportEyeTracking: 0
+  screenFade: 0
+  fadeTime: 5
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  renderQueue: 5000
 --- !u!114 &1423673075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2030,7 +1991,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1632987530
 GameObject:
